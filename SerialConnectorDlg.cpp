@@ -29,6 +29,7 @@ CSerialConnectorDlg::CSerialConnectorDlg(CWnd* pParent /*=NULL*/)
 	vStopBits[0] = "1";	vStopBits[1] = "1.5";	vStopBits[2] = "2";
 	vFlowCtrl[0] = "Xon / Xoff"; vFlowCtrl[1] = "Hardware"; vFlowCtrl[2] = "None";
 	vMessageBrush = ::CreateSolidBrush(cRed);
+	vPort1Id = vPort2Id = -1;
 
 	// Create listneer threads
 	vExitThread = false;
@@ -219,7 +220,7 @@ UINT CSerialConnectorDlg::ThreadProc2(LPVOID param)
 	{
 		TRY
 		{
-			if ((bytesRead = vMyPointer->vPort2.Read(&readBuff, 30)) > 0)
+		  if ((bytesRead = vMyPointer->vPort2.Read(&readBuff, 30)) > 0)
 				vMyPointer->vPort1.Write(&readBuff, bytesRead);
 		}
 			CATCH_ALL(e)
@@ -401,19 +402,27 @@ void CSerialConnectorDlg::OnPort1OpenClicked()
 	if (vPort1.IsOpen())
 	{
 		vPort1.CancelIo();
-		vPort2.CancelIo();
+		if(vPort2.IsOpen()) vPort2.CancelIo();
 		vWorkerThread1->SuspendThread();
 		vWorkerThread2->SuspendThread();
 		vPort1.Close();
 		m_Port1Open.SetWindowTextW(_T("Open"));
+		vPort1Id = -1;
 	}
 	else
 	{
 		GetSerialParams(1);
+		if(vPortVal == vPort2Id)
+		{
+		  CString ErrorMessage; ErrorMessage.Format(_T("COM%d is in use by Port2."), vPortVal);
+			DisplayUserMessage(ErrorMessage);
+			return;
+		}
 		if (vPort1.IsOpen()) vPort1.Close();
 		TRY
 		{
 			vPort1.Open(vPortVal, vBaudVal, vParityVal, vDataBitVal, vStopBitVal, vFlowCtrlVal, vOverlappedVal);
+		  vPort1Id = vPortVal;
 		}
 			CATCH_ALL(e)
 		{
@@ -438,20 +447,28 @@ void CSerialConnectorDlg::OnPort2OpenClicked()
 {
 	if (vPort2.IsOpen())
 	{
-		vPort1.CancelIo();
+		if(vPort1.IsOpen()) vPort1.CancelIo();
 		vPort2.CancelIo();
 		vWorkerThread1->SuspendThread();
 		vWorkerThread2->SuspendThread();
 		vPort2.Close();
 		m_Port2Open.SetWindowTextW(_T("Open"));
+		vPort2Id = -1;
 	}
 	else
 	{
 		GetSerialParams(2);
+		if (vPortVal == vPort1Id)
+		{
+			CString ErrorMessage; ErrorMessage.Format(_T("COM%d is in use by Port1."), vPortVal);
+			DisplayUserMessage(ErrorMessage);
+			return;
+		}
 		if (vPort2.IsOpen()) vPort2.Close();
 		TRY
 		{
 			vPort2.Open(vPortVal, vBaudVal, vParityVal, vDataBitVal, vStopBitVal, vFlowCtrlVal, vOverlappedVal);
+			vPort2Id = vPortVal;
 		}
 			CATCH_ALL(e)
 		{

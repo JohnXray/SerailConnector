@@ -33,6 +33,8 @@ private:
 
 	CSerialPort vPort1;
 	CSerialPort vPort2;
+	int vPort1Id;
+	int vPort2Id;
 
 	CString vBaudRates[10];
 	CString vDataBits[4];
