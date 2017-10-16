@@ -45,8 +45,8 @@ CSerialConnectorDlg::~CSerialConnectorDlg()
 {
 	vExitThread = true;
 	DeleteObject(vMessageBrush);
-	vPort1.CancelIo();
-	vPort2.CancelIo();
+	if(vPort1.IsOpen()) vPort1.CancelIo();
+	if(vPort2.IsOpen()) vPort2.CancelIo();
 	vWorkerThread1->ResumeThread();
 	vWorkerThread2->ResumeThread();
 	Sleep(100);
