@@ -28,7 +28,7 @@ private:
 	static UINT ThreadProc1(LPVOID param);
 	static UINT ThreadProc2(LPVOID param);
 
-	const COLORREF cRed = 0x0000FFFF; //COLORREF hexadecimal form 0x00bbggrr
+	const COLORREF cMessageColor = 0x0000FFFF; //COLORREF hexadecimal form 0x00bbggrr
 	HBRUSH vMessageBrush; 
 
 	CSerialPort vPort1;

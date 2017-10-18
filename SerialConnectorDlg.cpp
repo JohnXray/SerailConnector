@@ -28,7 +28,7 @@ CSerialConnectorDlg::CSerialConnectorDlg(CWnd* pParent /*=NULL*/)
 	vParity[0] = "None"; vParity[1] = "Even"; vParity[2] = "Odd"; vParity[3] = "Mark"; vParity[4] = "Space";
 	vStopBits[0] = "1";	vStopBits[1] = "1.5";	vStopBits[2] = "2";
 	vFlowCtrl[0] = "Xon / Xoff"; vFlowCtrl[1] = "Hardware"; vFlowCtrl[2] = "None";
-	vMessageBrush = ::CreateSolidBrush(cRed);
+	vMessageBrush = ::CreateSolidBrush(cMessageColor);
 	vPort1Id = vPort2Id = -1;
 
 	// Create listneer threads
