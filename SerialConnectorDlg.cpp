@@ -45,8 +45,8 @@ CSerialConnectorDlg::~CSerialConnectorDlg()
 {
 	vExitThread = true;
 	DeleteObject(vMessageBrush);
-	if(vPort1.IsOpen()) vPort1.CancelIo();
-	if(vPort2.IsOpen()) vPort2.CancelIo();
+	if (vPort1.IsOpen()) vPort1.CancelIo();
+	if (vPort2.IsOpen()) vPort2.CancelIo();
 	vWorkerThread1->ResumeThread();
 	vWorkerThread2->ResumeThread();
 	Sleep(100);
@@ -194,20 +194,16 @@ UINT CSerialConnectorDlg::ThreadProc1(LPVOID param)
 {
 	BYTE readBuff[32];
 	DWORD bytesRead = 0;
-	for (;!vExitThread;)
+	for (; !vExitThread;)
 	{
-		TRY
+		try
 		{
 			if ((bytesRead = vMyPointer->vPort1.Read(&readBuff, 1)) > 0)
 				vMyPointer->vPort2.Write(&readBuff, bytesRead);
 		}
-			CATCH_ALL(e)
+		catch (...)
 		{
-			TCHAR buff[1024];
-			e->GetErrorMessage((LPTSTR)(&buff[0]), 1022);
-			e->Delete();
 		}
-		END_CATCH_ALL
 	}
 	return 0;
 }
@@ -216,20 +212,16 @@ UINT CSerialConnectorDlg::ThreadProc2(LPVOID param)
 {
 	BYTE readBuff[32];
 	DWORD bytesRead = 0;
-	for (;!vExitThread;)
+	for (; !vExitThread;)
 	{
-		TRY
+		try
 		{
-		  if ((bytesRead = vMyPointer->vPort2.Read(&readBuff, 30)) > 0)
+			if ((bytesRead = vMyPointer->vPort2.Read(&readBuff, 30)) > 0)
 				vMyPointer->vPort1.Write(&readBuff, bytesRead);
 		}
-			CATCH_ALL(e)
+		catch (...)
 		{
-			TCHAR buff[1024];
-			e->GetErrorMessage((LPTSTR)(&buff[0]), 1022);
-			e->Delete();
 		}
-		END_CATCH_ALL
 	}
 	return 0;
 }
@@ -402,7 +394,7 @@ void CSerialConnectorDlg::OnPort1OpenClicked()
 	if (vPort1.IsOpen())
 	{
 		vPort1.CancelIo();
-		if(vPort2.IsOpen()) vPort2.CancelIo();
+		if (vPort2.IsOpen()) vPort2.CancelIo();
 		vWorkerThread1->SuspendThread();
 		vWorkerThread2->SuspendThread();
 		vPort1.Close();
@@ -412,33 +404,30 @@ void CSerialConnectorDlg::OnPort1OpenClicked()
 	else
 	{
 		GetSerialParams(1);
-		if(vPortVal == vPort2Id)
+		if (vPortVal == vPort2Id)
 		{
-		  CString ErrorMessage; ErrorMessage.Format(_T("COM%d is in use by Port2."), vPortVal);
+			CString ErrorMessage; ErrorMessage.Format(_T("COM%d is in use by Port2."), vPortVal);
 			DisplayUserMessage(ErrorMessage);
 			return;
 		}
 		if (vPort1.IsOpen()) vPort1.Close();
-		TRY
+		try
 		{
 			vPort1.Open(vPortVal, vBaudVal, vParityVal, vDataBitVal, vStopBitVal, vFlowCtrlVal, vOverlappedVal);
-		  vPort1Id = vPortVal;
+			vPort1Id = vPortVal;
 		}
-			CATCH_ALL(e)
+		catch (...)
 		{
-			vPort1.Close();
-			e->Delete();
 		}
-		END_CATCH_ALL
-			if (!vPort1.IsOpen())
-			{
-				CString ErrorMessage; ErrorMessage.Format(_T("Could not open Port1 on COM%d."), vPortVal);
-				DisplayUserMessage(ErrorMessage);
-			}
-			else
-			{
-				m_Port1Open.SetWindowTextW(_T("Close"));
-			}
+		if (!vPort1.IsOpen())
+		{
+			CString ErrorMessage; ErrorMessage.Format(_T("Could not open Port1 on COM%d."), vPortVal);
+			DisplayUserMessage(ErrorMessage);
+		}
+		else
+		{
+			m_Port1Open.SetWindowTextW(_T("Close"));
+		}
 	}
 	CheckPortConnectivity();
 }
@@ -447,7 +436,7 @@ void CSerialConnectorDlg::OnPort2OpenClicked()
 {
 	if (vPort2.IsOpen())
 	{
-		if(vPort1.IsOpen()) vPort1.CancelIo();
+		if (vPort1.IsOpen()) vPort1.CancelIo();
 		vPort2.CancelIo();
 		vWorkerThread1->SuspendThread();
 		vWorkerThread2->SuspendThread();
@@ -465,26 +454,23 @@ void CSerialConnectorDlg::OnPort2OpenClicked()
 			return;
 		}
 		if (vPort2.IsOpen()) vPort2.Close();
-		TRY
+		try
 		{
 			vPort2.Open(vPortVal, vBaudVal, vParityVal, vDataBitVal, vStopBitVal, vFlowCtrlVal, vOverlappedVal);
 			vPort2Id = vPortVal;
 		}
-			CATCH_ALL(e)
+		catch (...)
 		{
-			vPort2.Close();
-			e->Delete();
 		}
-		END_CATCH_ALL
-			if (!vPort2.IsOpen())
-			{
-				CString ErrorMessage; ErrorMessage.Format(_T("Could not open Port2 on COM%d."), vPortVal);
-				DisplayUserMessage(ErrorMessage);
-			}
-			else
-			{
-				m_Port2Open.SetWindowTextW(_T("Close"));
-			}
+		if (!vPort2.IsOpen())
+		{
+			CString ErrorMessage; ErrorMessage.Format(_T("Could not open Port2 on COM%d."), vPortVal);
+			DisplayUserMessage(ErrorMessage);
+		}
+		else
+		{
+			m_Port2Open.SetWindowTextW(_T("Close"));
+		}
 	}
 	CheckPortConnectivity();
 }
