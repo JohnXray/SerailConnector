@@ -193,13 +193,13 @@ void CSerialConnectorDlg::OnPaint()
 UINT CSerialConnectorDlg::ThreadProc1(LPVOID param)
 {
 	BYTE readBuff[32];
-	DWORD bytesRead = 0;
+	DWORD bytesRead = 0, bytesWrite = 0;
 	for (; !vExitThread;)
 	{
 		try
 		{
-			if ((bytesRead = vMyPointer->vPort1.Read(&readBuff, 1)) > 0)
-				vMyPointer->vPort2.Write(&readBuff, bytesRead);
+			if ((bytesRead = vMyPointer->vPort1.Read(&readBuff, 30)) > 0)
+				bytesWrite = vMyPointer->vPort2.Write(&readBuff, bytesRead);
 		}
 		catch (...)
 		{
@@ -211,13 +211,13 @@ UINT CSerialConnectorDlg::ThreadProc1(LPVOID param)
 UINT CSerialConnectorDlg::ThreadProc2(LPVOID param)
 {
 	BYTE readBuff[32];
-	DWORD bytesRead = 0;
+	DWORD bytesRead = 0, bytesWrite = 0;
 	for (; !vExitThread;)
 	{
 		try
 		{
 			if ((bytesRead = vMyPointer->vPort2.Read(&readBuff, 30)) > 0)
-				vMyPointer->vPort1.Write(&readBuff, bytesRead);
+				bytesWrite = vMyPointer->vPort1.Write(&readBuff, bytesRead);
 		}
 		catch (...)
 		{
